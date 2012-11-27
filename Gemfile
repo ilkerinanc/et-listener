@@ -22,7 +22,7 @@ end
 
 gem 'jquery-rails'
 gem 'tweetstream'
-gem 'resque'
+gem 'resque', "~> 1.22.0"
 gem 'resque-loner'
 gem 'twitter'
 
