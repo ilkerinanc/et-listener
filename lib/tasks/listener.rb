@@ -31,15 +31,15 @@ class Listener
     #   Thread.kill(@timer2) if @timer2.alive?
     #   puts "stream stopped #{message}"
     # end
-    @streamer.track('#istanbul') do |status|
+    @streamer.track('#istanbul', '@emergentweet_tw') do |status|
       # puts "#{status.text}"
       puts status.text
       hashtags=status.hashtags.collect(&:text)
       if hashtags.include?('ne') and hashtags.include?('nerede')
-        Resque::Job.create("et_analyze", 'Analyzer', parse_tweet(status))
+        Resque::Job.create("et_analyze", 'Analyzer', parse_tweet(status), 1)
+      elsif (hashtags.include?('cozuldu') or hashtags.include?('cozulmedi')) and status.reply?
+        Resque::Job.create("et_analyze", 'Analyzer', parse_tweet(status), 2)
       end
-      # puts "#{status.user.id}"
-      # puts status.from_user_id
     end
 
     # @streamer.filter(follow: @follow_ids_as_string) do |status|
@@ -62,20 +62,15 @@ class Listener
   private
 
   class << self
-    # def prepare_list
-    #   @follow_ids_as_string = prepare_follow_ids
-    #   puts "follow #{@follow_ids_as_string}"
-    #   @since_id = Utilities.get_since_id
-    #   @last_tweet_time = Time.now
-    # end
 
     def parse_tweet(entry)
       parsed_tweet = {
         "entry" => {
           "author_id" =>entry.user.id,
-          "status_id" => entry.id,
+          "author_username" => entry.user.screen_name,
+          "tid" => entry.id,
           "value" => entry.text,
-          "in_reply_to_status_id" => entry.in_reply_to_status_id,
+          "in_reply_to_tid" => entry.in_reply_to_status_id.to_s,
           "permalink" => "http://www.twitter.com/#{entry.user.screen_name}/statuses/#{entry.id}",
           "posted_at" => entry.created_at.utc
         }

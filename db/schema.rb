@@ -11,6 +11,24 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 20121127233741) do
+
+  create_table "nodes", :force => true do |t|
+    t.integer  "author_id"
+    t.integer  "tid"
+    t.text     "value"
+    t.integer  "in_reply_to_tid"
+    t.string   "permalink"
+    t.datetime "posted_at"
+    t.integer  "category_id"
+    t.string   "what"
+    t.string   "location"
+    t.integer  "long"
+    t.integer  "lat"
+    t.integer  "amount"
+    t.text     "extra"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
 
 end
