@@ -25,34 +25,16 @@ class Listener
       # set_timers
     end
 
-    # # Log error message somewhere
-    # @streamer.on_error do |message|
-    #   Thread.kill(@timer) if @timer.alive?
-    #   Thread.kill(@timer2) if @timer2.alive?
-    #   puts "stream stopped #{message}"
-    # end
     @streamer.track('#istanbul', '@emergentweet_tw') do |status|
       # puts "#{status.text}"
       puts status.text
       hashtags=status.hashtags.collect(&:text)
-      if hashtags.include?('ne') and hashtags.include?('nerede')
+      if (hashtags.include?('ne') and hashtags.include?('nerede')) or (hashtags.include?('kim') and hashtags.include?('nerede'))
         Resque::Job.create("et_analyze", 'Analyzer', parse_tweet(status), 1)
       elsif (hashtags.include?('cozuldu') or hashtags.include?('cozulmedi')) and status.reply?
         Resque::Job.create("et_analyze", 'Analyzer', parse_tweet(status), 2)
       end
     end
-
-    # @streamer.filter(follow: @follow_ids_as_string) do |status|
-    #   # send result to resque write queue
-    #   NodeSender.send(parse_entry(status))
-    #   @last_tweet_time = status.created_at
-    #   puts "#{status.user.screen_name} #{status.id} #{status.created_at} #{status.text}"
-
-    #   call_url_builder(status.id) if count == 5
-    #   set_since_id(status.id) if count > 5
-
-    #   count += 1
-    # end
 
   rescue Exception => message
     puts message
